@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django_countries.fields import CountryField
-
+from datetime import date
 
 class LanguageLevel(models.Model):
     name_level = models.CharField(max_length=50)
@@ -25,22 +25,45 @@ class CourseType(models.Model):
 
 class StudentProfile(User):
     photo = models.ImageField(upload_to='student_photos/', null=True, blank=True)
-    nationality = CountryField()
+    date_of_birth = models.DateField(null=True, blank=True)
+    country_of_birth = CountryField(blank=True) 
+    country_of_residence = CountryField(blank=True)
     level = models.ForeignKey(
         LanguageLevel,
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True
     )
-
+    def get_age(self):
+        if self.date_of_birth:
+            today = date.today()
+            return today.year - self.date_of_birth.year - (
+                (today.month, today.day) < 
+                (self.date_of_birth.month, self.date_of_birth.day)
+            )
+        return None
+    
     class Meta:
         verbose_name = "Student"
 
 
 class TeacherProfile(User):
     photo = models.ImageField(upload_to='teacher_photos/')
+    date_of_birth = models.DateField(null=True, blank=True)
     biography = models.TextField()
-    nationality = CountryField()
+    country_of_birth = CountryField(blank=True)
+    country_of_residence = CountryField(blank=True)
     courses = models.ManyToManyField(CourseType, blank=True)
 
+    def get_age(self):
+        if self.date_of_birth:
+            today = date.today()
+            return today.year - self.date_of_birth.year - (
+                (today.month, today.day) < 
+                (self.date_of_birth.month, self.date_of_birth.day)
+            )
+        return None
+    
     class Meta:
         verbose_name = "Teacher"
 

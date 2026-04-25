@@ -1,0 +1,8 @@
+{% extends "spanishapp/base.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<h2>Welcome, {{ request.user.first_name }}!</h2>
+<p>This is your student dashboard.</p>
+{% endblock %}
