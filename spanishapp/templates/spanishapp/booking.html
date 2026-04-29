@@ -1,0 +1,22 @@
+{% extends "spanishapp/base.html" %}
+
+{% block title %}Book a class{% endblock %}
+
+{% block content %}
+<h2>Book a class</h2>
+<p>Select a course</p>
+
+{% for course in courses%}
+    <div>
+        <h3> {{course.title}} </h3>
+        <p>  {{course.description}} </p>
+        <p> Minimun level: {{course.min_level}} </p>
+        <a href="/booking/teachers/{{course.id}}/"><button>Select</button></a>
+        
+    </div> 
+{% endfor %}
+
+<a href= "/student/dashboard/"><button>Go back</button></a>
+
+
+{% endblock %}

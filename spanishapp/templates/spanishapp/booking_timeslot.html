@@ -1,0 +1,24 @@
+{% extends "spanishapp/base.html" %}
+
+{% block title %}Select a time{% endblock %}
+
+{% block content %}
+<h2>Book a class</h2>
+<p>Select a time</p>
+<p>Course selected: {{course.title}}</p>
+<p>Teacher: {{teacher.first_name}}{{ teacher.last_name}}</p>
+
+{%for slot in time_slots%}
+    
+    <p>{{slot.start_date_time}}-{{slot.end_date_time}} </p>
+    <a href="/booking/confirm/{{course.id}}/{{teacher.id}}/{{slot.id}}"><button>Select</button></a>
+        
+    <hr> 
+{%endfor%}
+{%if not time_slots%}
+    <p>This teacher has not available times</p>
+{%endif%}
+<a href= "/booking/teachers/{{course.id}}/"><button>Go back</button></a>
+
+
+{% endblock %}

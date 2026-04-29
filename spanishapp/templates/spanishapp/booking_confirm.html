@@ -1,0 +1,20 @@
+{% extends "spanishapp/base.html" %}
+
+{% block title %}Confirm booking{% endblock %}
+
+{% block content %}
+<h2>Confirm your booking</h2>
+
+<p>Course: {{course.title}}</p>
+<p>Teacher: {{teacher.first_name}}{{teacher.last_name}}</p>
+<p>Date: {{timeslot.start_date_time}}</p>
+<p>End time: {{timeslot.end_date_time}}</p>
+
+<form method="POST">
+     {%csrf_token%}
+    <button type="Submit">Confirm booking</button>
+</form>
+   
+<a href="/booking/timeslots/{{course.id}}/{{teacher.id}}"><button>Go back</button></a>
+        
+{% endblock %}

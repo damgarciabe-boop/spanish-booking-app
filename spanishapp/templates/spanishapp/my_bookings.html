@@ -1,0 +1,24 @@
+{% extends "spanishapp/base.html" %}
+
+{% block title %}My bookings{% endblock %}
+
+{% block content %}
+<h2>My bookings</h2>
+
+{%for booking in bookings%}
+    <p>Course: {{booking.course.title}}</p>
+    <p>Teacher: {{booking.time_slot.teacher.first_name}}{{booking.time_slot.teacher.last_name}}</p>
+    <p>Date: {{booking.time_slot.start_date_time}}</p>
+    <p>Status: {{booking.status}}</p>
+
+    <hr>
+
+{%endfor%}
+
+{%if not bookings%}
+    <p>You have no bookings yet.</p>
+{%endif%}
+    
+    <a href="/student/dashboard/"><button>Go back</button></a>
+        
+{% endblock %}
