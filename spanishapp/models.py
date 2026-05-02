@@ -86,6 +86,10 @@ class TimeSlot(models.Model):
         TeacherProfile,
         on_delete=models.CASCADE
     )
+    course = models.ForeignKey(
+        CourseType,
+        on_delete=models.PROTECT, null=True, blank=True
+    )
 
     def __str__(self):
         return f"{self.teacher} | {self.start_date_time}"

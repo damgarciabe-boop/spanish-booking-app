@@ -1,0 +1,10 @@
+{%extends "spanishapp/base.html"%}
+{% block title %}Create Time Slot{% endblock %}
+{% block content %}
+<h2>Create Available Time Slot</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Time Slot</button>
+</form>
+{% endblock %}

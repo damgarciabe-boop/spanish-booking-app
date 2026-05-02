@@ -8,9 +8,15 @@
 {%for booking in bookings%}
     <p>Course: {{booking.course.title}}</p>
     <p>Teacher: {{booking.time_slot.teacher.first_name}}{{booking.time_slot.teacher.last_name}}</p>
-    <p>Date: {{booking.time_slot.start_date_time}}</p>
+    <p>Date: {{booking.time_slot.start_date_time}} {{booking.time_slot.end_date_time}}</p>
     <p>Status: {{booking.status}}</p>
-
+    {% if booking.status.title == "Confirmed" or booking.status.title == "Pending" %}
+        <a href="{% url 'request_cancellation' booking.id %}" 
+        style="background-color:#f58e8e; color:black; padding:2px 4px; border-radius:4px; margin-left:8px;">
+        Request Cancellation
+        </a>
+        <p style="color:#ff0000; font-weight:italic;">*Cancellation is only possible 24 hours before the requested class</p>
+    {% endif %}
     <hr>
 
 {%endfor%}

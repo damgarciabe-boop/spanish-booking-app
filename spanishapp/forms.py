@@ -1,5 +1,5 @@
 from django import forms
-from .models import StudentProfile
+from .models import StudentProfile, TimeSlot
 
 class StudentRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -17,3 +17,12 @@ class StudentRegistrationForm(forms.ModelForm):
         if password != confirm_password:
             raise forms.ValidationError('Passwords do not match')
         return cleaned_data
+    
+class TimeSlotForm(forms.ModelForm):
+    class Meta:
+        model = TimeSlot
+        fields = ['course','start_date_time', 'end_date_time']
+        widgets = {
+            'start_date_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'end_date_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
