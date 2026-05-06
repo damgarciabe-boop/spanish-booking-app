@@ -45,12 +45,16 @@ def student_dashboard(request):
 
 @login_required
 def teacher_dashboard(request):
-    return render(request, 'spanishapp/teacher_dashboard.html')
+    teacher = TeacherProfile.objects.get(id=request.user.id)
+    bookings = Booking.objects.filter(time_slot__teacher=teacher)
+    time_slots = TimeSlot.objects.filter(teacher=teacher).order_by('start_date_time')
+    return render(request, "spanishapp/teacher_dashboard.html", {"bookings": bookings, "time_slots": time_slots})
 
 @login_required
-def booking (request):
-    courses = CourseType.objects.all()
-    return render(request, "spanishapp/booking.html", {"courses": courses} )
+def booking(request):
+    student = StudentProfile.objects.get(id=request.user.id)
+    courses = CourseType.objects.filter(min_level__order__lte=student.level.order)
+    return render(request, "spanishapp/booking.html", {"courses": courses})
 
 @login_required
 def booking_teachers (request, course_id):
@@ -95,15 +99,8 @@ def my_bookings (request):
 
 
 @login_required
-def teacher_dashboard(request):
-    teacher = request.user.teacherprofile
-    bookings = Booking.objects.filter(time_slot__teacher=teacher)
-    return render(request, "spanishapp/teacher_dashboard.html", {"bookings": bookings})
-
-
-@login_required
 def create_timeslot(request):
-    teacher = request.user.teacherprofile
+    teacher = TeacherProfile.objects.get(id=request.user.id)
     if request.method == "POST":
         form = TimeSlotForm(request.POST)
         if form.is_valid():
@@ -116,6 +113,17 @@ def create_timeslot(request):
         form = TimeSlotForm()
         form.fields['course'].queryset = teacher.courses.all()
     return render(request, "spanishapp/create_timeslot.html", {"form": form})
+
+@login_required
+def delete_timeslot(request, timeslot_id):
+    timeslot = TimeSlot.objects.get(id=timeslot_id)
+    has_booking = Booking.objects.filter(
+        time_slot=timeslot,
+        status__title__in=["Pending", "Confirmed", "Cancellation Requested"]
+    ).exists()
+    if not has_booking:
+        timeslot.delete()
+    return redirect('teacher_dashboard')
 
 @login_required
 def confirm_booking(request, booking_id):

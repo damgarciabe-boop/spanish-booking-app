@@ -5,26 +5,28 @@
 {% block content %}
 <h2>My bookings</h2>
 
-{%for booking in bookings%}
-    <p>Course: {{booking.course.title}}</p>
-    <p>Teacher: {{booking.time_slot.teacher.first_name}}{{booking.time_slot.teacher.last_name}}</p>
-    <p>Date: {{booking.time_slot.start_date_time}} {{booking.time_slot.end_date_time}}</p>
-    <p>Status: {{booking.status}}</p>
+{% for booking in bookings %}
+    <p>Course: {{ booking.course.title }}</p>
+    <p>Teacher: {{ booking.time_slot.teacher.first_name }} {{ booking.time_slot.teacher.last_name }}</p>
+    <p>Date: {{ booking.time_slot.start_date_time|date:"F j, Y" }} {{ booking.time_slot.start_date_time|time:"g:i a" }} — {{ booking.time_slot.end_date_time|time:"g:i a" }}</p>
+    <p>Status: {{ booking.status }}</p>
     {% if booking.status.title == "Confirmed" or booking.status.title == "Pending" %}
         <a href="{% url 'request_cancellation' booking.id %}" 
         style="background-color:#f58e8e; color:black; padding:2px 4px; border-radius:4px; margin-left:8px;">
         Request Cancellation
         </a>
-        <p style="color:#ff0000; font-weight:italic;">*Cancellation is only possible 24 hours before the requested class</p>
+        <p style="color:#ff0000;">*Cancellation is only possible 24 hours before the requested class</p>
+    {% endif %}
+    {% if booking.status.title == "Cancellation Requested" %}
+        <p style="color:orange;">*Your cancellation request is being processed</p>
     {% endif %}
     <hr>
+{% endfor %}
 
-{%endfor%}
-
-{%if not bookings%}
+{% if not bookings %}
     <p>You have no bookings yet.</p>
-{%endif%}
-    
-    <a href="/student/dashboard/"><button>Go back</button></a>
-        
+{% endif %}
+
+<a href="/student/dashboard/"><button>Go back</button></a>
+
 {% endblock %}

@@ -6,6 +6,7 @@ from datetime import date
 class LanguageLevel(models.Model):
     name_level = models.CharField(max_length=50)
     description = models.TextField()
+    order = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name_level
