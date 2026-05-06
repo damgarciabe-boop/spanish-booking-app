@@ -4,19 +4,21 @@
 
 {% block content %}
 <h2>Book a class</h2>
-<p>Select a course</p>
+<h3>Select a course</h3>
 
-{% for course in courses%}
-    <div>
-        <h3> {{course.title}} </h3>
-        <p>  {{course.description}} </p>
-        <p> Minimun level: {{course.min_level}} </p>
-        <a href="/booking/teachers/{{course.id}}/"><button>Select</button></a>
-        
-    </div> 
+<div class="card-grid">
+{% for course in courses %}
+    <div class="course-card">
+        <h4>{{ course.title }}</h4>
+        <p>{{ course.description }}</p>
+        <p class="min-level">Minimum level: {{ course.min_level }}</p>
+        <a href="/booking/teachers/{{ course.id }}/"><button>Select</button></a>
+    </div>
 {% endfor %}
+</div>
 
-<a href= "/student/dashboard/"><button>Go back</button></a>
-
+<div class="button-group">
+    <a href="/student/dashboard/"><button>Go back</button></a>
+</div>
 
 {% endblock %}

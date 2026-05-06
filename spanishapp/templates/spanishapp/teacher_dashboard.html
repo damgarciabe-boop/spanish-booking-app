@@ -4,16 +4,20 @@
 
 {% block content %}
 <h2>Welcome, {{ request.user.first_name }}!</h2>
-<p>This is your teacher dashboard.</p>
-<a href="{% url 'create_timeslot' %}">Create Available Time Slot</a>
+<p class="course-selected">This is your teacher dashboard.</p>
 
-<h3>My Availability:</h3>
+<div class="button-group" style="margin-bottom: 32px;">
+    <a href="{% url 'create_timeslot' %}"><button>Create Available Time Slot</button></a>
+</div>
+
+<h3>My Availability</h3>
 {% if time_slots %}
-<ul>
+<div class="timeslot-grid">
     {% for slot in time_slots %}
-    <li>
-        <p>{{ slot.course.title }} -- {{ slot.start_date_time|date:"F j, Y" }} 
-        {{ slot.start_date_time|time:"g:i a" }} to {{ slot.end_date_time|time:"g:i a" }}
+    <div class="timeslot-card" style="text-align:left;">
+        <p><strong>{{ slot.course.title }}</strong></p>
+        <p>{{ slot.start_date_time|date:"F j, Y" }}</p>
+        <p>{{ slot.start_date_time|time:"g:i a" }} — {{ slot.end_date_time|time:"g:i a" }}</p>
         {% if slot.is_available %}
             <span style="color:green;">Available</span>
             <a href="{% url 'delete_timeslot' slot.id %}" 
@@ -24,56 +28,41 @@
         {% else %}
             <span style="color:orange;">Booked</span>
         {% endif %}
-        </p>
-    </li>
+    </div>
     {% endfor %}
-</ul>
+</div>
 {% else %}
     <p>You have no availability set up yet.</p>
 {% endif %}
 
-<h3>Your Bookings:</h3>
-<ul>
+<h3>Your Bookings</h3>
 {% for booking in bookings %}
-    <li>
+    <div class="confirm-card" style="margin-bottom: 16px;">
         <p><strong>Student: {{ booking.student.first_name }} {{ booking.student.last_name }}</strong></p>
         <p>Course: {{ booking.course.title }}</p>
-        <p>Date & Time: {{ booking.time_slot.start_date_time|date:"F j, Y" }} -- 
-            {{ booking.time_slot.start_date_time|time:"g:i a" }} to {{ booking.time_slot.end_date_time|time:"g:i a" }}</p>
-        <p>Status: <span style="font-style:italic;">{{ booking.status }}</span></p>
+        <p>Date: {{ booking.time_slot.start_date_time|date:"F j, Y" }} — {{ booking.time_slot.start_date_time|time:"g:i a" }} to {{ booking.time_slot.end_date_time|time:"g:i a" }}</p>
+        <p>Status: <em>{{ booking.status }}</em></p>
         {% if booking.status.title == "Cancellation Requested" %}
             <p style="color:#ff0000;">*This student wants to cancel this class</p>
         {% endif %}
-        {% if booking.status.title == "Pending" %}
-            <a href="{% url 'confirm_booking' booking.id %}" 
-               style="background-color:#a7f2ce; color:black; padding:2px 4px; border-radius:4px; margin-left:8px;">
-               Confirm
-            </a>
-            <a href="{% url 'cancel_booking' booking.id %}" 
-               style="background-color:#f58e8e; color:black; padding:2px 4px; border-radius:4px; margin-left:4px;">
-               Cancel
-            </a>
-        {% elif booking.status.title == "Confirmed" %}
-            <a href="{% url 'cancel_booking' booking.id %}" 
-               style="background-color:#f58e8e; color:black; padding:2px 4px; border-radius:4px; margin-left:8px;">
-               Cancel
-            </a>
-        {% elif booking.status.title == "Cancellation Requested" %}
-            <a href="{% url 'cancel_booking' booking.id %}"
-               style="background-color:#f58e8e; color:black; padding:2px 4px; border-radius:4px; margin-left:8px;">
-               Cancel
-            </a>
-        {% elif booking.status.title == "Cancelled" %}
-            <a href="{% url 'delete_booking' booking.id %}" 
-               style="margin-left:8px;" 
-               onclick="return confirm('Are you sure you want to delete this booking?');">
-               Delete
-            </a>
-        {% endif %}
-    </li>
+        <div class="button-group" style="margin-top: 12px;">
+            {% if booking.status.title == "Pending" %}
+                <a href="{% url 'confirm_booking' booking.id %}" style="background-color:#a7f2ce; color:black; padding:8px 16px; border-radius:6px;">Confirm</a>
+                <a href="{% url 'cancel_booking' booking.id %}" style="background-color:#f58e8e; color:black; padding:8px 16px; border-radius:6px;">Cancel</a>
+            {% elif booking.status.title == "Confirmed" %}
+                <a href="{% url 'cancel_booking' booking.id %}" style="background-color:#f58e8e; color:black; padding:8px 16px; border-radius:6px;">Cancel</a>
+            {% elif booking.status.title == "Cancellation Requested" %}
+                <a href="{% url 'cancel_booking' booking.id %}" style="background-color:#f58e8e; color:black; padding:8px 16px; border-radius:6px;">Cancel</a>
+            {% elif booking.status.title == "Cancelled" %}
+                <a href="{% url 'delete_booking' booking.id %}" 
+                   onclick="return confirm('Are you sure you want to delete this booking?');">
+                   Delete
+                </a>
+            {% endif %}
+        </div>
+    </div>
 {% empty %}
-    <li>No bookings found.</li>
+    <p>No bookings found.</p>
 {% endfor %}
-</ul>
 
 {% endblock %}

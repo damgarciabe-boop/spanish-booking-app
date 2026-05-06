@@ -1,20 +1,27 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Spanish Lessons One to One{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'spanishapp/style.css' %}">
 </head>
 <body>
 
     <nav>
-        <a href="{% url 'home' %}">Home</a>
-        <a href="/about/">About Us</a>
-        {% if request.user.is_authenticated %}
-            <a href="{% url 'logout' %}">Logout</a>
-        {% else %}
-            <a href="{% url 'login' %}">Login</a>
-        {% endif %}
+        <div class="nav-container">
+            <a class="nav-brand" href="{% url 'home' %}">Spanish Lessons</a>
+            <div class="nav-links">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="/about/">About Us</a>
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                {% endif %}
+            </div>
+        </div>
     </nav>
 
     <main>
@@ -23,7 +30,7 @@
     </main>
 
     <footer>
-        <p>© 2026 Spanish Lessons</p>
+        <p>© 2026 Spanish Lessons One to One</p>
     </footer>
 
 </body>

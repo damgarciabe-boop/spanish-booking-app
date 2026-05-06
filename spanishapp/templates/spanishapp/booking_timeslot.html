@@ -4,21 +4,26 @@
 
 {% block content %}
 <h2>Book a class</h2>
-<p>Select a time</p>
-<p>Course selected: {{course.title}}</p>
-<p>Teacher: {{teacher.first_name}}{{ teacher.last_name}}</p>
+<p class="course-selected">Course selected: {{ course.title }}</p>
+<p class="course-selected">Teacher: {{ teacher.first_name }} {{ teacher.last_name }}</p>
 
-{%for slot in time_slots%}
-    
-    <p>{{slot.start_date_time}}-{{slot.end_date_time}} </p>
-    <a href="/booking/confirm/{{course.id}}/{{teacher.id}}/{{slot.id}}"><button>Select</button></a>
-        
-    <hr> 
-{%endfor%}
-{%if not time_slots%}
-    <p>This teacher has not available times</p>
-{%endif%}
-<a href= "/booking/teachers/{{course.id}}/"><button>Go back</button></a>
+<h3>Select a time</h3>
 
+<div class="timeslot-grid">
+{% for slot in time_slots %}
+    <a href="/booking/confirm/{{ course.id }}/{{ teacher.id }}/{{ slot.id }}" class="timeslot-card">
+        {{ slot.start_date_time|date:"F j, Y" }}<br>
+        {{ slot.start_date_time|time:"g:i a" }} — {{ slot.end_date_time|time:"g:i a" }}
+    </a>
+{% endfor %}
+</div>
+
+{% if not time_slots %}
+    <p>This teacher has no available times.</p>
+{% endif %}
+
+<div class="button-group">
+    <a href="/booking/teachers/{{ course.id }}/"><button>Go back</button></a>
+</div>
 
 {% endblock %}

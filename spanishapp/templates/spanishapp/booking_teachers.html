@@ -4,21 +4,26 @@
 
 {% block content %}
 <h2>Book a class</h2>
-<p>Select a teacher</p>
-<p>Course selected: {{course.title}}</p>
+<h3>Select a teacher</h3>
+<p class="course-selected">Course selected: {{ course.title }}</p>
 
-{%for teacher in teachers%}
-    
-        <h3>{{teacher.first_name}} {{teacher.last_name}} </h3>
-        {%if teacher.photo%}
-            <img src="{{teacher.photo.url}}"width="200" height="200">
-        {%endif%}
-        <p> {{teacher.biography}} </p>
-        <a href="/booking/timeslots/{{course.id}}/{{teacher.id}}"><button>Select</button></a>
-    <hr>  
-{%endfor%}
+{% for teacher in teachers %}
+    <div class="teacher-card">
+        <div class="teacher-header">
+            {% if teacher.photo %}
+                <img src="{{ teacher.photo.url }}" class="teacher-photo">
+            {% endif %}
+            <h4>{{ teacher.first_name }} {{ teacher.last_name }}</h4>
+        </div>
+        <p>{{ teacher.biography }}</p>
+        <div class="button-group">
+            <a href="/booking/timeslots/{{ course.id }}/{{ teacher.id }}"><button>Select</button></a>
+        </div>
+    </div>
+{% endfor %}
 
-<a href= "/booking/"><button>Go back</button></a>
-
+<div class="button-group">
+    <a href="/booking/"><button>Go back</button></a>
+</div>
 
 {% endblock %}

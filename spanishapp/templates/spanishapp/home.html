@@ -3,8 +3,29 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<h1>Welcome to Spanish Lessons One to One</h1>
-<p>Start your language journey with our personalized Spanish classes! Book yours today.</p>
+<div class="hero">
+    <h1>Welcome to Spanish Lessons One to One</h1>
+    <p class="hero-subtitle">Personalized Spanish classes tailored to your level and goals. Learn with experienced teachers at your own pace.</p>
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'student_dashboard' %}"><button>Go to my dashboard</button></a>
+    {% else %}
+        <a href="{% url 'login' %}"><button>Get started</button></a>
+    {% endif %}
+</div>
 
-<a href="{% url 'login' %}">Login</a>
+<div class="features">
+    <div class="feature-card">
+        <h4>One to One</h4>
+        <p>Personalized lessons designed exclusively for you, at your own rhythm.</p>
+    </div>
+    <div class="feature-card">
+        <h4>Expert Teachers</h4>
+        <p>Learn with experienced native Spanish teachers passionate about teaching.</p>
+    </div>
+    <div class="feature-card">
+        <h4>Flexible Booking</h4>
+        <p>Choose the time and course that fits your schedule and language level.</p>
+    </div>
+</div>
+
 {% endblock %}

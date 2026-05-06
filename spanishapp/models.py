@@ -88,8 +88,8 @@ class TimeSlot(models.Model):
         on_delete=models.CASCADE
     )
     course = models.ForeignKey(
-        CourseType,
-        on_delete=models.PROTECT, null=True, blank=True
+    CourseType,
+    on_delete=models.PROTECT
     )
 
     def __str__(self):

@@ -4,9 +4,17 @@
 
 {% block content %}
 <h2>Welcome, {{ request.user.first_name }}!</h2>
-<p>This is your student dashboard.</p>
+<p class="course-selected">This is your student dashboard.</p>
 
-<a href= "/booking/"><button>Book a class</button></a>
-<a href= "/my_bookings/"><button>My bookings</button></a>
-<a href= "/logout/"><button>Logout</button></a>
+<div class="dashboard-actions">
+    <a href="/booking/" class="action-card">
+        <h4>Book a class</h4>
+        <p>Browse available courses and teachers</p>
+    </a>
+    <a href="/my_bookings/" class="action-card">
+        <h4>My bookings</h4>
+        <p>View and manage your reservations</p>
+    </a>
+</div>
+
 {% endblock %}
