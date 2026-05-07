@@ -16,4 +16,22 @@
     </form>
 </div>
 
+<script>
+    const startInput = document.getElementById('id_start_date_time');
+    const endInput = document.getElementById('id_end_date_time');
+
+    startInput.addEventListener('change', function() {
+        if (startInput.value) {
+            const startDate = new Date(startInput.value);
+            startDate.setHours(startDate.getHours() + 1);
+            const year = startDate.getFullYear();
+            const month = String(startDate.getMonth() + 1).padStart(2, '0');
+            const day = String(startDate.getDate()).padStart(2, '0');
+            const hours = String(startDate.getHours()).padStart(2, '0');
+            const minutes = String(startDate.getMinutes()).padStart(2, '0');
+            endInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+    });
+</script>
+
 {% endblock %}

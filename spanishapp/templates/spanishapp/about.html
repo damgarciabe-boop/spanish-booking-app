@@ -1,0 +1,26 @@
+{% extends "spanishapp/base.html" %}
+
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<div class="hero" style="padding: 40px 0;">
+    <h2>About Us</h2>
+    <p class="hero-subtitle">We are a team of passionate Spanish teachers dedicated to helping you achieve your language goals through personalized one-to-one lessons.</p>
+</div>
+
+<h3>Meet our teachers</h3>
+
+<div class="card-grid">
+    {% for teacher in teachers %}
+    <div class="course-card" style="text-align:center;">
+        {% if teacher.photo %}
+            <img src="{{ teacher.photo.url }}" class="teacher-photo" style="margin: 0 auto 16px;">
+        {% endif %}
+        <h4>{{ teacher.first_name }} {{ teacher.last_name }}</h4>
+        <p class="min-level">{{ teacher.country_of_birth }}</p>
+        <p>{{ teacher.biography }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

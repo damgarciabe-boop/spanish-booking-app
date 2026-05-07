@@ -10,6 +10,10 @@ from django.core.mail import send_mail
 def home(request):
     return render(request, 'spanishapp/home.html')
 
+def about(request):
+    teachers = TeacherProfile.objects.all()
+    return render(request, 'spanishapp/about.html', {'teachers': teachers})
+
 def register_student(request):
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST, request.FILES)

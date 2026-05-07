@@ -51,7 +51,7 @@ nav {
 /* ===== MAIN ===== */
 main {
     flex: 1;
-    max-width: 900px;
+    max-width: 1400px;
     margin: 50px auto;
     padding: 0 24px;
     width: 100%;
@@ -192,8 +192,8 @@ footer {
 
 /* ===== COURSE CARDS ===== */
 .card-grid {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 24px;
     margin: 24px 0;
 }
@@ -203,9 +203,6 @@ footer {
     border: 1px solid #E8A0A0;
     border-radius: 10px;
     padding: 24px;
-    flex: 1;
-    min-width: 250px;
-    max-width: 350px;
 }
 
 .course-card h4 {
