@@ -14,7 +14,7 @@
         {% csrf_token %}
         <p>
             <label>Username</label>
-            <input type="text" name="username">
+            <input type="text" name="username" value="{{request.POST.username}}">
         </p>
         <p>
             <label>Password</label>

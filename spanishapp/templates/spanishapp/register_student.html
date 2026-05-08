@@ -12,7 +12,18 @@
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        {%for field in form%}
+            <p>
+                {{field.label_tag}}
+                {{field}}
+                {%if field.errors%}
+                    {%for error in field.errors%}
+                        <span style= "color:red;">{{error}}</span>
+                    {%endfor%}
+                {%endif%}
+            </p>
+        {%endfor%}
+
         <div class="button-group">
             <button type="submit">Register</button>
         </div>

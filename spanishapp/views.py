@@ -27,6 +27,7 @@ def register_student(request):
     return render(request, 'spanishapp/register_student.html', {'form': form})
 
 def login_view(request):
+    error= None 
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -37,7 +38,9 @@ def login_view(request):
                 return redirect('teacher_dashboard')
             else:
                 return redirect('student_dashboard')
-    return render(request, 'spanishapp/login.html')
+        else:
+            error="invalid username or password. Please try again"
+    return render(request, 'spanishapp/login.html', {"error": error})
 
 def logout_view(request):
     logout(request)
@@ -57,6 +60,7 @@ def teacher_dashboard(request):
 @login_required
 def booking(request):
     student = StudentProfile.objects.get(id=request.user.id)
+    
     courses = CourseType.objects.filter(min_level__order__lte=student.level.order)
     return render(request, "spanishapp/booking.html", {"courses": courses})
 
