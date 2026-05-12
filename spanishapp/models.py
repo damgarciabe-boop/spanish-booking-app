@@ -31,9 +31,7 @@ class StudentProfile(User):
     country_of_residence = CountryField(blank=True)
     level = models.ForeignKey(
         LanguageLevel,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True
+        on_delete=models.PROTECT
     )
     def get_age(self):
         if self.date_of_birth:

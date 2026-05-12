@@ -2,6 +2,10 @@
 
 {% block title %}Student Dashboard{% endblock %}
 
+{% block banner %}
+<div class="student-banner">Student Dashboard</div>
+{% endblock %}
+
 {% block content %}
 <h2>Welcome, {{ request.user.first_name }}!</h2>
 <p class="course-selected">This is your student dashboard.</p>

@@ -29,8 +29,8 @@ urlpatterns = [
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='spanishapp/password_done.html'), name='password_reset_done'),
     path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='spanishapp/password_confirm.html'), name='password_reset_confirm'),
     path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='spanishapp/password_complete.html'), name='password_reset_complete'),
-    
+    path('profile/', views.my_profile, name='my_profile'),
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
     ]
-
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

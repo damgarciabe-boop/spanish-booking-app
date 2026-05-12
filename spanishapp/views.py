@@ -7,7 +7,8 @@ from .models import LanguageLevel, CourseType, StudentProfile, TeacherProfile, S
 from django.utils import timezone
 from datetime import timedelta 
 from django.core.mail import send_mail
-from django.contrib import messages 
+from django.contrib import messages
+from .forms import StudentRegistrationForm, TimeSlotForm, EditStudentProfileForm, EditTeacherProfileForm
 
 
 def home(request):
@@ -51,22 +52,42 @@ def logout_view(request):
 
 @login_required
 def student_dashboard(request):
+    if TeacherProfile.objects.filter(id=request.user.id).exists():
+        return redirect('teacher_dashboard')
+    try:
+        StudentProfile.objects.get(id=request.user.id)
+    except StudentProfile.DoesNotExist:
+        return redirect('/admin/')
     return render(request, 'spanishapp/student_dashboard.html')
 
 @login_required
 def teacher_dashboard(request):
+    if not TeacherProfile.objects.filter(id=request.user.id).exists():
+        return redirect('student_dashboard')
     teacher = TeacherProfile.objects.get(id=request.user.id)
     bookings = Booking.objects.filter(time_slot__teacher=teacher)
     time_slots = TimeSlot.objects.filter(teacher=teacher).order_by('start_date_time')
     return render(request, "spanishapp/teacher_dashboard.html", {"bookings": bookings, "time_slots": time_slots})
-
 @login_required
 def booking(request):
-    student = StudentProfile.objects.get(id=request.user.id)
-    
+    if TeacherProfile.objects.filter(id=request.user.id).exists():
+        return redirect('teacher_dashboard')
+    try:
+        student = StudentProfile.objects.get(id=request.user.id)
+    except StudentProfile.DoesNotExist:
+        return redirect('/admin/')
+    if student.level is None:
+        return render(request, 'spanishapp/booking.html', {'no_level': True})
     courses = CourseType.objects.filter(min_level__order__lte=student.level.order)
-    return render(request, "spanishapp/booking.html", {"courses": courses})
-
+    last_booking = Booking.objects.filter(student=student).order_by('-id').first()
+    last_teacher = last_booking.time_slot.teacher if last_booking else None
+    return render(request, "spanishapp/booking.html", {
+    "courses": courses,
+    "student": student,
+    "last_teacher": last_teacher,
+    "last_booking": last_booking,
+})
+    
 @login_required
 def booking_teachers (request, course_id):
     course = CourseType.objects.get(id=course_id)
@@ -213,8 +234,50 @@ def request_cancellation(request, booking_id):
     return redirect('my_bookings')
 
 
+@login_required
+def my_profile(request):
+    is_teacher = TeacherProfile.objects.filter(id=request.user.id).exists()
+    if is_teacher:
+        profile = TeacherProfile.objects.get(id=request.user.id)
+    else:
+        profile = StudentProfile.objects.get(id=request.user.id)
+    return render(request, 'spanishapp/my_profile.html', {'profile': profile, 'is_teacher': is_teacher})
 
+@login_required
+def edit_profile(request):
+    is_teacher = TeacherProfile.objects.filter(id=request.user.id).exists()
+    if is_teacher:
+        profile = TeacherProfile.objects.get(id=request.user.id)
+        FormClass = EditTeacherProfileForm
+    else:
+        profile = StudentProfile.objects.get(id=request.user.id)
+        FormClass = EditStudentProfileForm
 
+    if request.method == 'POST':
+        form = FormClass(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+            if new_password:
+                if new_password == confirm_password:
+                    profile.set_password(new_password)
+                    profile.save()
+                else:
+                    return render(request, 'spanishapp/edit_profile.html', {
+                        'form': form,
+                        'is_teacher': is_teacher,
+                        'error': 'Passwords do not match'
+                    })
+            return redirect('my_profile')
+    else:
+        form = FormClass(instance=profile)
+
+    return render(request, 'spanishapp/edit_profile.html', {
+        'form': form,
+        'is_teacher': is_teacher,
+        'profile': profile
+    })
 
 
 

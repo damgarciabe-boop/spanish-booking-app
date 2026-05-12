@@ -17,7 +17,7 @@
             <img src="{{ teacher.photo.url }}" class="teacher-photo" style="margin: 0 auto 16px;">
         {% endif %}
         <h4>{{ teacher.first_name }} {{ teacher.last_name }}</h4>
-        <p class="min-level">{{ teacher.country_of_birth }}</p>
+        <p class="min-level">{{ teacher.country_of_birth.name }}</p>
         <p>{{ teacher.biography }}</p>
     </div>
     {% endfor %}

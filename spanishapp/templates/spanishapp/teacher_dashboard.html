@@ -2,6 +2,10 @@
 
 {% block title %}Teacher Dashboard{% endblock %}
 
+{% block banner %}
+<div class="teacher-banner">Teacher Dashboard</div>
+{% endblock %}
+
 {% block content %}
 <h2>Welcome, {{ request.user.first_name }}!</h2>
 <p class="course-selected">This is your teacher dashboard.</p>

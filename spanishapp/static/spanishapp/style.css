@@ -85,6 +85,10 @@ a:hover {
     text-decoration: underline;
 }
 
+a.feature-card:hover {
+    text-decoration: none;
+}
+
 /* ===== BUTTONS ===== */
 button, input[type="submit"] {
     background-color: #E8A0A0;
@@ -337,15 +341,63 @@ footer {
     min-width: 200px;
     max-width: 280px;
     text-align: center;
+    text-decoration: none;
+    color: #2C2C2C;
+    display: block;
+    transition: all 0.2s;
 }
 
 .feature-card h4 {
     font-size: 1.1rem;
     margin-bottom: 10px;
     color: #2C2C2C;
+    text-decoration: none;
 }
 
 .feature-card p {
     font-size: 0.9rem;
     color: #666666;
+    text-decoration: none;
+}
+
+.feature-card-link:hover {
+    background-color: #E8A0A0;
+    transform: scale(1.03);
+}
+
+.feature-card-link h4,
+.feature-card-link p {
+    color: #2C2C2C;
+}
+
+/* ===== PORTAL BANNERS ===== */
+.student-banner {
+    background-color: #FDF0F0;
+    color: #C47A7A;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-bottom: 32px;
+    margin-top: 0;
+}
+
+.teacher-banner {
+    background-color: #6B6B6B;
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-bottom: 32px;
+    margin-top: 0;
+}
+
+.student-banner, .teacher-banner {
+    width: 100%;
+    box-sizing: border-box;
 }

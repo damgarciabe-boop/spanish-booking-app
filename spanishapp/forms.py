@@ -1,9 +1,18 @@
 from django import forms
-from .models import StudentProfile, TimeSlot
+from .models import StudentProfile, TeacherProfile, TimeSlot
+from django_countries.fields import CountryField
+from django_countries.widgets import CountrySelectWidget
+
 
 class StudentRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     confirm_password = forms.CharField(widget=forms.PasswordInput)
+    email = forms.EmailField(required=True)
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        help_text='Format: YYYY-MM-DD (e.g. 1990-05-23)'
+    )
 
     class Meta:
         model = StudentProfile
@@ -25,4 +34,20 @@ class TimeSlotForm(forms.ModelForm):
         widgets = {
             'start_date_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'end_date_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+        
+class EditStudentProfileForm(forms.ModelForm):
+    class Meta:
+        model = StudentProfile
+        fields = ['photo', 'country_of_residence']
+        widgets = {
+            'country_of_residence': CountrySelectWidget(),
+        }
+
+class EditTeacherProfileForm(forms.ModelForm):
+    class Meta:
+        model = TeacherProfile
+        fields = ['photo', 'country_of_residence', 'biography']
+        widgets = {
+            'country_of_residence': CountrySelectWidget(),
         }

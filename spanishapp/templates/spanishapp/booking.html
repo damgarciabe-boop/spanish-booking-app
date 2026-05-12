@@ -4,8 +4,23 @@
 
 {% block content %}
 <h2>Book a class</h2>
-<h3>Select a course</h3>
+<p class="course-selected">Your language level: <strong>{{ student.level }}</strong></p>
 
+{% if last_teacher %}
+<div style="border-left: 4px solid #E8A0A0; padding: 12px 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px;">
+    {% if last_teacher.photo %}
+        <img src="{{ last_teacher.photo.url }}" class="teacher-photo" style="width: 40px; height: 40px;">
+    {% endif %}
+    <div>
+        <p style="margin: 0; font-size: 0.9rem; color: #888;">Continue with your last teacher</p>
+        <p style="margin: 0;"><strong>{{ last_teacher.first_name }} {{ last_teacher.last_name }}</strong></p>
+    </div>
+    <a href="/booking/timeslots/{{ last_booking.course.id }}/{{ last_teacher.id }}/"><button>Book again</button></a>
+    <a href="/my_bookings/" style="font-size: 0.9rem;">My booking history</a>
+</div>
+{% endif %}
+
+<h3>Select a course</h3>
 <div class="card-grid">
 {% for course in courses %}
     <div class="course-card">
