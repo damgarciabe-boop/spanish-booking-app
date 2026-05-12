@@ -17,6 +17,7 @@
         {% csrf_token %}
         <button type="submit">Confirm booking</button>
     </form>
+
     <a href="/booking/timeslots/{{ course.id }}/{{ teacher.id }}"><button>Go back</button></a>
 </div>
 

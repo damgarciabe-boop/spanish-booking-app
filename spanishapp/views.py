@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordResetForm
 from .forms import StudentRegistrationForm, TimeSlotForm
 from .models import LanguageLevel, CourseType, StudentProfile, TeacherProfile, Status, TimeSlot, Booking
 from django.utils import timezone
 from datetime import timedelta 
 from django.core.mail import send_mail
+from django.contrib import messages 
+
 
 def home(request):
     return render(request, 'spanishapp/home.html')
@@ -39,7 +42,7 @@ def login_view(request):
             else:
                 return redirect('student_dashboard')
         else:
-            error="invalid username or password. Please try again"
+            error="Invalid username or password. Please try again"
     return render(request, 'spanishapp/login.html', {"error": error})
 
 def logout_view(request):
@@ -95,6 +98,7 @@ def booking_confirm (request, course_id, teacher_id, timeslot_id):
         
         timeslot.is_available=False
         timeslot.save()
+        messages.success(request, "Your booking was successful!")
         return redirect("/my_bookings/") 
     return render(request, "spanishapp/booking_confirm.html", {"course":course, "teacher":teacher, "timeslot":timeslot})
 
@@ -205,4 +209,22 @@ def request_cancellation(request, booking_id):
     cancelled_status = Status.objects.get(title="Cancellation Requested")
     booking.status = cancelled_status
     booking.save()
+     
     return redirect('my_bookings')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

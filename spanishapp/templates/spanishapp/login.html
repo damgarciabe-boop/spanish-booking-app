@@ -18,8 +18,16 @@
         </p>
         <p>
             <label>Password</label>
-            <input type="password" name="password">
+            <div>
+                <input type="password" id="password" name="password">
+                <button type="button" onclick="
+                    var i = document.getElementById('password');
+                    i.type = i.type === 'password' ? 'text' : 'password';
+                    this.textContent = i.type === 'password' ? 'Show' : 'Hide';
+                ">Show</button>
+            </div>
         </p>
+        <a href="{% url 'password_reset' %}">Forgot my password</a>
         <button type="submit">Login</button>
     </form>
 

@@ -3,6 +3,7 @@ from django.urls import path
 from spanishapp import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,8 +24,13 @@ urlpatterns = [
     path('booking/confirm/<int:booking_id>/', views.confirm_booking, name='confirm_booking'),
     path('booking/cancel/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
     path('booking/delete/<int:booking_id>/', views.delete_booking, name='delete_booking'),
-   path('booking/request_cancellation/<int:booking_id>/', views.request_cancellation, name='request_cancellation'),
+    path('booking/request_cancellation/<int:booking_id>/', views.request_cancellation, name='request_cancellation'),
+    path('password-reset/', auth_views.PasswordResetView.as_view(template_name='spanishapp/password_reset.html'), name='password_reset'),
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='spanishapp/password_done.html'), name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='spanishapp/password_confirm.html'), name='password_reset_confirm'),
+    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='spanishapp/password_complete.html'), name='password_reset_complete'),
     
-]
+    ]
+
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
