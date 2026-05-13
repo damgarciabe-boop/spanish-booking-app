@@ -1,0 +1,41 @@
+{% extends "spanishapp/base.html" %}
+
+{% block title %}My Availability{% endblock %}
+
+{% block banner %}
+<div class="teacher-banner">Teacher Dashboard</div>
+{% endblock %}
+
+{% block content %}
+<h2>My Availability</h2>
+
+<div class="button-group" style="margin-bottom: 32px;">
+    <a href="{% url 'create_timeslot' %}"><button>Create Available Time Slot</button></a>
+    <a href="{% url 'teacher_dashboard' %}"><button>Go back</button></a>
+</div>
+
+{% if time_slots %}
+<div class="timeslot-grid">
+    {% for slot in time_slots %}
+    <div class="timeslot-card" style="text-align:left;">
+        <p><strong>{{ slot.course.title }}</strong></p>
+        <p>{{ slot.start_date_time|date:"F j, Y" }}</p>
+        <p>{{ slot.start_date_time|time:"g:i a" }} — {{ slot.end_date_time|time:"g:i a" }}</p>
+        {% if slot.is_available %}
+            <span style="color:green;">Available</span>
+            <a href="{% url 'delete_timeslot' slot.id %}" 
+               style="color:red; margin-left:8px;"
+               onclick="return confirm('Are you sure you want to delete this time slot?');">
+               Delete
+            </a>
+        {% else %}
+            <span style="color:orange;">Booked</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p>You have no availability set up yet.</p>
+{% endif %}
+
+{% endblock %}

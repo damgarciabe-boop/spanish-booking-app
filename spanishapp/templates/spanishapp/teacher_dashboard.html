@@ -10,63 +10,15 @@
 <h2>Welcome, {{ request.user.first_name }}!</h2>
 <p class="course-selected">This is your teacher dashboard.</p>
 
-<div class="button-group" style="margin-bottom: 32px;">
-    <a href="{% url 'create_timeslot' %}"><button>Create Available Time Slot</button></a>
+<div class="dashboard-actions">
+    <a href="{% url 'teacher_availability' %}" class="action-card">
+        <h4>My Availability</h4>
+        <p>Manage your available time slots</p>
+    </a>
+    <a href="{% url 'teacher_bookings' %}" class="action-card">
+        <h4>My Bookings</h4>
+        <p>View and manage your student bookings</p>
+    </a>
 </div>
-
-<h3>My Availability</h3>
-{% if time_slots %}
-<div class="timeslot-grid">
-    {% for slot in time_slots %}
-    <div class="timeslot-card" style="text-align:left;">
-        <p><strong>{{ slot.course.title }}</strong></p>
-        <p>{{ slot.start_date_time|date:"F j, Y" }}</p>
-        <p>{{ slot.start_date_time|time:"g:i a" }} — {{ slot.end_date_time|time:"g:i a" }}</p>
-        {% if slot.is_available %}
-            <span style="color:green;">Available</span>
-            <a href="{% url 'delete_timeslot' slot.id %}" 
-               style="color:red; margin-left:8px;"
-               onclick="return confirm('Are you sure you want to delete this time slot?');">
-               Delete
-            </a>
-        {% else %}
-            <span style="color:orange;">Booked</span>
-        {% endif %}
-    </div>
-    {% endfor %}
-</div>
-{% else %}
-    <p>You have no availability set up yet.</p>
-{% endif %}
-
-<h3>Your Bookings</h3>
-{% for booking in bookings %}
-    <div class="confirm-card" style="margin-bottom: 16px;">
-        <p><strong>Student: {{ booking.student.first_name }} {{ booking.student.last_name }}</strong></p>
-        <p>Course: {{ booking.course.title }}</p>
-        <p>Date: {{ booking.time_slot.start_date_time|date:"F j, Y" }} — {{ booking.time_slot.start_date_time|time:"g:i a" }} to {{ booking.time_slot.end_date_time|time:"g:i a" }}</p>
-        <p>Status: <em>{{ booking.status }}</em></p>
-        {% if booking.status.title == "Cancellation Requested" %}
-            <p style="color:#ff0000;">*This student wants to cancel this class</p>
-        {% endif %}
-        <div class="button-group" style="margin-top: 12px;">
-            {% if booking.status.title == "Pending" %}
-                <a href="{% url 'confirm_booking' booking.id %}" style="background-color:#a7f2ce; color:black; padding:8px 16px; border-radius:6px;">Confirm</a>
-                <a href="{% url 'cancel_booking' booking.id %}" style="background-color:#f58e8e; color:black; padding:8px 16px; border-radius:6px;">Cancel</a>
-            {% elif booking.status.title == "Confirmed" %}
-                <a href="{% url 'cancel_booking' booking.id %}" style="background-color:#f58e8e; color:black; padding:8px 16px; border-radius:6px;">Cancel</a>
-            {% elif booking.status.title == "Cancellation Requested" %}
-                <a href="{% url 'cancel_booking' booking.id %}" style="background-color:#f58e8e; color:black; padding:8px 16px; border-radius:6px;">Cancel</a>
-            {% elif booking.status.title == "Cancelled" %}
-                <a href="{% url 'delete_booking' booking.id %}" 
-                   onclick="return confirm('Are you sure you want to delete this booking?');">
-                   Delete
-                </a>
-            {% endif %}
-        </div>
-    </div>
-{% empty %}
-    <p>No bookings found.</p>
-{% endfor %}
 
 {% endblock %}

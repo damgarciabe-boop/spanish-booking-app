@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -64,10 +66,8 @@ def student_dashboard(request):
 def teacher_dashboard(request):
     if not TeacherProfile.objects.filter(id=request.user.id).exists():
         return redirect('student_dashboard')
-    teacher = TeacherProfile.objects.get(id=request.user.id)
-    bookings = Booking.objects.filter(time_slot__teacher=teacher)
-    time_slots = TimeSlot.objects.filter(teacher=teacher).order_by('start_date_time')
-    return render(request, "spanishapp/teacher_dashboard.html", {"bookings": bookings, "time_slots": time_slots})
+    return render(request, "spanishapp/teacher_dashboard.html")
+
 @login_required
 def booking(request):
     if TeacherProfile.objects.filter(id=request.user.id).exists():
@@ -277,6 +277,49 @@ def edit_profile(request):
         'form': form,
         'is_teacher': is_teacher,
         'profile': profile
+    })
+
+@login_required
+def teacher_availability(request):
+    if not TeacherProfile.objects.filter(id=request.user.id).exists():
+        return redirect('student_dashboard')
+    teacher = TeacherProfile.objects.get(id=request.user.id)
+    
+    time_slots = TimeSlot.objects.filter(
+        teacher=teacher,
+        end_date_time__gte=timezone.now()
+    ).order_by('start_date_time')
+    
+    return render(request, "spanishapp/teacher_availability.html", {"time_slots": time_slots})
+
+@login_required
+def teacher_bookings(request):
+    if not TeacherProfile.objects.filter(id=request.user.id).exists():
+        return redirect('student_dashboard')
+    teacher = TeacherProfile.objects.get(id=request.user.id)
+    
+    past_bookings = Booking.objects.filter(
+        time_slot__teacher=teacher,
+        time_slot__end_date_time__lt=timezone.now(),
+        status__title__in=["Pending", "Confirmed"]
+    )
+    completed_status = Status.objects.get(title="Completed")
+    for booking in past_bookings:
+        booking.status = completed_status
+        booking.save()
+
+    pending = Booking.objects.filter(time_slot__teacher=teacher, status__title="Pending").order_by('time_slot__start_date_time')
+    confirmed = Booking.objects.filter(time_slot__teacher=teacher, status__title="Confirmed").order_by('time_slot__start_date_time')
+    cancellation_requested = Booking.objects.filter(time_slot__teacher=teacher, status__title="Cancellation Requested").order_by('time_slot__start_date_time')
+    completed = Booking.objects.filter(time_slot__teacher=teacher, status__title="Completed").order_by('time_slot__start_date_time')
+    cancelled = Booking.objects.filter(time_slot__teacher=teacher, status__title="Cancelled").order_by('time_slot__start_date_time')
+
+    return render(request, "spanishapp/teacher_bookings.html", {
+        "pending": pending,
+        "confirmed": confirmed,
+        "cancellation_requested": cancellation_requested,
+        "completed": completed,
+        "cancelled": cancelled,
     })
 
 
