@@ -78,16 +78,26 @@ def booking(request):
         return redirect('/admin/')
     if student.level is None:
         return render(request, 'spanishapp/booking.html', {'no_level': True})
-    courses = CourseType.objects.filter(min_level__order__lte=student.level.order)
+    
+    age = student.get_age()
+    if age and age < 18:
+        courses = CourseType.objects.filter(title__icontains="Children")
+    else:
+        courses = CourseType.objects.exclude(title__icontains="Children")
+    
+    courses = courses.filter(min_level__order__lte=student.level.order)
+    
     last_booking = Booking.objects.filter(student=student).order_by('-id').first()
     last_teacher = last_booking.time_slot.teacher if last_booking else None
-    return render(request, "spanishapp/booking.html", {
-    "courses": courses,
-    "student": student,
-    "last_teacher": last_teacher,
-    "last_booking": last_booking,
-})
     
+    return render(request, "spanishapp/booking.html", {
+        "courses": courses,
+        "student": student,
+        "last_teacher": last_teacher,
+        "last_booking": last_booking,
+    })
+    
+ 
 @login_required
 def booking_teachers (request, course_id):
     course = CourseType.objects.get(id=course_id)
