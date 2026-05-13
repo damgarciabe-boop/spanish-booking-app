@@ -11,7 +11,7 @@ class StudentRegistrationForm(forms.ModelForm):
     date_of_birth = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={'type': 'date'}),
-        help_text='Format: YYYY-MM-DD (e.g. 1990-05-23)'
+        help_text='Format: DD/MM/YYYY (e.g. 23/05/1990)'
     )
 
     class Meta:

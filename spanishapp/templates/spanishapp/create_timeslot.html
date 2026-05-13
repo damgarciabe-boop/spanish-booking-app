@@ -2,8 +2,19 @@
 
 {% block title %}Create Time Slot{% endblock %}
 
+{% block banner %}
+<div class="teacher-banner">Teacher Dashboard</div>
+{% endblock %}
+
 {% block content %}
 <h2>Create Available Time Slot</h2>
+
+{% if success %}
+<div style="background-color:#a7f2ce; border-radius:8px; padding:16px; margin-bottom:24px;">
+    <p><strong>Time slot created successfully!</strong></p>
+    <p style="font-size:0.9rem;">You can create another one below or go back to your availability.</p>
+</div>
+{% endif %}
 
 <div class="confirm-card">
     <form method="post">
@@ -11,7 +22,7 @@
         {{ form.as_p }}
         <div class="button-group">
             <button type="submit">Save Time Slot</button>
-            <a href="/teacher/dashboard/"><button type="button">Go back</button></a>
+            <a href="{% url 'teacher_availability' %}"><button type="button">Go to My Availability</button></a>
         </div>
     </form>
 </div>

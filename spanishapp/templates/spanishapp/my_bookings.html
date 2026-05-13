@@ -5,32 +5,82 @@
 {% block content %}
 <h2>My bookings</h2>
 
-{% for booking in bookings %}
+{% if error %}
+<div style="background-color:#f58e8e; border-radius:8px; padding:16px; margin-bottom:24px;">
+    <p><strong>{{ error }}</strong></p>
+</div>
+{% endif %}
+
+{% if pending %}
+<h3>Pending</h3>
+{% for booking in pending %}
     <div class="confirm-card" style="margin-bottom: 16px;">
         <p><strong>Course:</strong> {{ booking.course.title }}</p>
         <p><strong>Teacher:</strong> {{ booking.time_slot.teacher.first_name }} {{ booking.time_slot.teacher.last_name }}</p>
         <p><strong>Date:</strong> {{ booking.time_slot.start_date_time|date:"F j, Y" }} {{ booking.time_slot.start_date_time|time:"g:i a" }} — {{ booking.time_slot.end_date_time|time:"g:i a" }}</p>
         <p><strong>Status:</strong> {{ booking.status }}</p>
-        {% if booking.status.title == "Confirmed" or booking.status.title == "Pending" %}
-            <div class="button-group" style="margin-top: 12px;">
-                <a href="{% url 'request_cancellation' booking.id %}" 
-                style="background-color:#f58e8e; color:black; padding:8px 16px; border-radius:6px;">
-                Request Cancellation
-                </a>
-            </div>
-            <p style="color:#ff0000; margin-top: 8px;">*Cancellation is only possible 24 hours before the requested class</p>
-        {% endif %}
-        {% if booking.status.title == "Cancellation Requested" %}
-            <p style="color:orange; margin-top: 8px;">*Your cancellation request is being processed</p>
+        <p style="color:#888; font-size:0.85rem;">*Waiting for teacher confirmation</p>
+        <div class="button-group" style="margin-top: 12px;">
+            <a href="{% url 'request_cancellation' booking.id %}" 
+            style="background-color:#f58e8e; color:black; padding:8px 16px; border-radius:6px;">
+            Cancel booking
+            </a>
+        </div>
+    </div>
+{% endfor %}
+{% endif %}
+
+{% if confirmed %}
+<h3>Confirmed</h3>
+{% for booking in confirmed %}
+    <div class="confirm-card" style="margin-bottom: 16px; border-left: 4px solid #a7f2ce;">
+        <p><strong>Course:</strong> {{ booking.course.title }}</p>
+        <p><strong>Teacher:</strong> {{ booking.time_slot.teacher.first_name }} {{ booking.time_slot.teacher.last_name }}</p>
+        <p><strong>Date:</strong> {{ booking.time_slot.start_date_time|date:"F j, Y" }} {{ booking.time_slot.start_date_time|time:"g:i a" }} — {{ booking.time_slot.end_date_time|time:"g:i a" }}</p>
+        <p><strong>Status:</strong> <span style="color:green;">{{ booking.status }}</span></p>
+        <div class="button-group" style="margin-top: 12px;">
+            <a href="{% url 'request_cancellation' booking.id %}" 
+            style="background-color:#f58e8e; color:black; padding:8px 16px; border-radius:6px;">
+            Request Cancellation
+            </a>
+        </div>
+        <p style="color:#ff0000; margin-top: 8px; font-size:0.85rem;">*Cancellation is only possible more than 24 hours before the class</p>
+    </div>
+{% endfor %}
+{% endif %}
+
+{% if cancellation_requested %}
+<h3>Cancellation Requested</h3>
+{% for booking in cancellation_requested %}
+    <div class="confirm-card" style="margin-bottom: 16px; border-left: 4px solid orange;">
+        <p><strong>Course:</strong> {{ booking.course.title }}</p>
+        <p><strong>Teacher:</strong> {{ booking.time_slot.teacher.first_name }} {{ booking.time_slot.teacher.last_name }}</p>
+        <p><strong>Date:</strong> {{ booking.time_slot.start_date_time|date:"F j, Y" }} {{ booking.time_slot.start_date_time|time:"g:i a" }} — {{ booking.time_slot.end_date_time|time:"g:i a" }}</p>
+        <p style="color:orange;">*Your cancellation request is being processed</p>
+        {% if booking.cancellation_reason %}
+            <p style="color:#888; font-size:0.85rem;">Reason: {{ booking.cancellation_reason }}</p>
         {% endif %}
     </div>
 {% endfor %}
+{% endif %}
 
-{% if not bookings %}
+{% if completed %}
+<h3>Completed</h3>
+{% for booking in completed %}
+    <div class="confirm-card" style="margin-bottom: 16px; border-left: 4px solid green;">
+        <p><strong>Course:</strong> {{ booking.course.title }}</p>
+        <p><strong>Teacher:</strong> {{ booking.time_slot.teacher.first_name }} {{ booking.time_slot.teacher.last_name }}</p>
+        <p><strong>Date:</strong> {{ booking.time_slot.start_date_time|date:"F j, Y" }} {{ booking.time_slot.start_date_time|time:"g:i a" }} — {{ booking.time_slot.end_date_time|time:"g:i a" }}</p>
+        <p><strong>Status:</strong> <span style="color:green;">{{ booking.status }}</span></p>
+    </div>
+{% endfor %}
+{% endif %}
+
+{% if not pending and not confirmed and not cancellation_requested and not completed %}
     <p>You have no bookings yet.</p>
 {% endif %}
 
-<div class="button-group">
+<div class="button-group" style="margin-top: 24px;">
     <a href="/student/dashboard/"><button>Go back</button></a>
 </div>
 

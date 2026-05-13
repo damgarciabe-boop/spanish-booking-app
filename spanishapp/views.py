@@ -27,7 +27,7 @@ def register_student(request):
             student = form.save(commit=False)
             student.set_password(form.cleaned_data['password'])
             student.save()
-            return redirect('login')
+            return render(request, 'spanishapp/register_student.html', {'success': True})
     else:
         form = StudentRegistrationForm()
     return render(request, 'spanishapp/register_student.html', {'form': form})
@@ -95,17 +95,22 @@ def booking_teachers (request, course_id):
     return render(request, "spanishapp/booking_teachers.html", {"course": course, "teachers": teachers})
 
 @login_required
-def booking_timeslot (request, course_id, teacher_id):
+def booking_timeslot(request, course_id, teacher_id):
     course = CourseType.objects.get(id=course_id)
-    teacher= TeacherProfile.objects.get(id=teacher_id)
-    time_slots=TimeSlot.objects.filter(teacher=teacher,course=course,is_available=True)
-    return render(request, "spanishapp/booking_timeslot.html", {"course":course, "teacher":teacher, "time_slots":time_slots})
+    teacher = TeacherProfile.objects.get(id=teacher_id)
+    time_slots = TimeSlot.objects.filter(
+        teacher=teacher,
+        course=course,
+        is_available=True,
+        start_date_time__gt=timezone.now()
+    ).order_by('start_date_time')
+    return render(request, "spanishapp/booking_timeslot.html", {"course": course, "teacher": teacher, "time_slots": time_slots})
 
 @login_required
-def booking_confirm (request, course_id, teacher_id, timeslot_id):
+def booking_confirm(request, course_id, teacher_id, timeslot_id):
     course = CourseType.objects.get(id=course_id)
-    teacher= TeacherProfile.objects.get(id=teacher_id)
-    timeslot=TimeSlot.objects.get(id=timeslot_id)
+    teacher = TeacherProfile.objects.get(id=teacher_id)
+    timeslot = TimeSlot.objects.get(id=timeslot_id)
     
     if request.method == "POST":
         already_booked = Booking.objects.filter(time_slot=timeslot, status__title__in=["Pending", "Confirmed"]).exists()
@@ -113,24 +118,73 @@ def booking_confirm (request, course_id, teacher_id, timeslot_id):
         if already_booked:
             return redirect("/my_bookings/")
         
-        student=StudentProfile.objects.get(id=request.user.id)
-        status=Status.objects.get(title="Pending")
+        student = StudentProfile.objects.get(id=request.user.id)
+        status = Status.objects.get(title="Pending")
         Booking.objects.create(student=student, course=course, time_slot=timeslot, status=status)
         
-        timeslot.is_available=False
+        timeslot.is_available = False
         timeslot.save()
-        messages.success(request, "Your booking was successful!")
-        return redirect("/my_bookings/") 
-    return render(request, "spanishapp/booking_confirm.html", {"course":course, "teacher":teacher, "timeslot":timeslot})
 
+        send_mail(
+            'New Booking Pending Confirmation',
+            f'You have a new booking request from {student.first_name} {student.last_name}.',
+            'noreply@spanish1to1.com',
+            [teacher.email],
+            fail_silently=False,
+            html_message=f'''
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2 style="color: #C47A7A;">New Booking Request</h2>
+                <p>Hola {teacher.first_name},</p>
+                <p>You have a new booking request pending confirmation.</p>
+                <hr>
+                <p><strong>Student:</strong> {student.first_name} {student.last_name}</p>
+                <p><strong>Course:</strong> {course.title}</p>
+                <p><strong>Date:</strong> {timeslot.start_date_time.strftime("%B %d, %Y")}</p>
+                <p><strong>Time:</strong> {timeslot.start_date_time.strftime("%I:%M %p")} - {timeslot.end_date_time.strftime("%I:%M %p")}</p>
+                <hr>
+                <p>Please log in to confirm or cancel this booking.</p>
+                <hr>
+                <p style="font-size: 0.8em; color: #777;">This is an automated message, please do not reply.</p>
+            </div>
+            ''',
+        )
+
+        return redirect("/my_bookings/")
+    return render(request, "spanishapp/booking_confirm.html", {"course": course, "teacher": teacher, "timeslot": timeslot})
 
 @login_required
-def my_bookings (request):
+def my_bookings(request):
     student = StudentProfile.objects.get(id=request.user.id)
-    bookings = Booking.objects.filter(student=student)
-    return render(request, "spanishapp/my_bookings.html", {"bookings": bookings})
+    
+    
+    past_bookings = Booking.objects.filter(
+        student=student,
+        time_slot__end_date_time__lt=timezone.now(),
+        status__title="Confirmed"
+    )
+    completed_status = Status.objects.get(title="Completed")
+    for booking in past_bookings:
+        booking.status = completed_status
+        booking.save()
 
+    
+    Booking.objects.filter(
+        student=student,
+        status__title="Cancelled"
+    ).delete()
 
+    pending = Booking.objects.filter(student=student, status__title="Pending").order_by('time_slot__start_date_time')
+    confirmed = Booking.objects.filter(student=student, status__title="Confirmed").order_by('time_slot__start_date_time')
+    cancellation_requested = Booking.objects.filter(student=student, status__title="Cancellation Requested").order_by('time_slot__start_date_time')
+    completed = Booking.objects.filter(student=student, status__title="Completed").order_by('time_slot__start_date_time')
+
+    return render(request, "spanishapp/my_bookings.html", {
+        "pending": pending,
+        "confirmed": confirmed,
+        "cancellation_requested": cancellation_requested,
+        "completed": completed,
+    })
+    
 @login_required
 def create_timeslot(request):
     teacher = TeacherProfile.objects.get(id=request.user.id)
@@ -141,7 +195,7 @@ def create_timeslot(request):
             timeslot.teacher = teacher
             timeslot.is_available = True
             timeslot.save()
-            return redirect('teacher_dashboard')
+            return render(request, "spanishapp/create_timeslot.html", {"form": TimeSlotForm(initial={'course': timeslot.course}), "success": True, "teacher": teacher})
     else:
         form = TimeSlotForm()
         form.fields['course'].queryset = teacher.courses.all()
@@ -225,14 +279,81 @@ def delete_booking(request, booking_id):
 @login_required
 def request_cancellation(request, booking_id):
     booking = Booking.objects.get(id=booking_id)
-    if booking.time_slot.start_date_time - timezone.now() < timedelta(hours=24):
-        return redirect('my_bookings')
-    cancelled_status = Status.objects.get(title="Cancellation Requested")
-    booking.status = cancelled_status
-    booking.save()
-     
-    return redirect('my_bookings')
+    teacher = booking.time_slot.teacher
+    student = booking.student
 
+    if booking.status.title == "Pending":
+        cancelled_status = Status.objects.get(title="Cancelled")
+        booking.status = cancelled_status
+        booking.save()
+        booking.time_slot.is_available = True
+        booking.time_slot.save()
+        send_mail(
+            'Booking Cancelled by Student',
+            f'{student.first_name} {student.last_name} has cancelled their booking.',
+            'noreply@spanish1to1.com',
+            [teacher.email],
+            fail_silently=False,
+            html_message=f'''
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2 style="color: #C47A7A;">Booking Cancelled</h2>
+                <p>Hola {teacher.first_name},</p>
+                <p>A student has cancelled their booking before confirmation.</p>
+                <hr>
+                <p><strong>Student:</strong> {student.first_name} {student.last_name}</p>
+                <p><strong>Course:</strong> {booking.course.title}</p>
+                <p><strong>Date:</strong> {booking.time_slot.start_date_time.strftime("%B %d, %Y")}</p>
+                <p><strong>Time:</strong> {booking.time_slot.start_date_time.strftime("%I:%M %p")} - {booking.time_slot.end_date_time.strftime("%I:%M %p")}</p>
+                <hr>
+                <p style="font-size: 0.8em; color: #777;">This is an automated message, please do not reply.</p>
+            </div>
+            ''',
+        )
+        return redirect('my_bookings')
+
+
+    if booking.time_slot.start_date_time - timezone.now() < timedelta(hours=24):
+        return render(request, 'spanishapp/request_cancellation.html', {
+            'booking': booking,
+            'too_late': True
+        })
+
+    if request.method == 'POST':
+        reason = request.POST.get('reason')
+        cancelled_status = Status.objects.get(title="Cancellation Requested")
+        booking.status = cancelled_status
+        booking.cancellation_reason = reason
+        booking.save()
+        send_mail(
+            'Cancellation Request',
+            f'{student.first_name} {student.last_name} has requested to cancel their booking.',
+            'noreply@spanish1to1.com',
+            [teacher.email],
+            fail_silently=False,
+            html_message=f'''
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2 style="color: #C47A7A;">Cancellation Request</h2>
+                <p>Hola {teacher.first_name},</p>
+                <p>A student has requested to cancel their booking.</p>
+                <hr>
+                <p><strong>Student:</strong> {student.first_name} {student.last_name}</p>
+                <p><strong>Course:</strong> {booking.course.title}</p>
+                <p><strong>Date:</strong> {booking.time_slot.start_date_time.strftime("%B %d, %Y")}</p>
+                <p><strong>Time:</strong> {booking.time_slot.start_date_time.strftime("%I:%M %p")} - {booking.time_slot.end_date_time.strftime("%I:%M %p")}</p>
+                <p><strong>Reason:</strong> {reason}</p>
+                <hr>
+                <p>Please log in to confirm or cancel this booking.</p>
+                <hr>
+                <p style="font-size: 0.8em; color: #777;">This is an automated message, please do not reply.</p>
+            </div>
+            ''',
+        )
+        return redirect('my_bookings')
+
+    return render(request, 'spanishapp/request_cancellation.html', {
+        'booking': booking,
+        'too_late': False
+    })
 
 @login_required
 def my_profile(request):
@@ -361,7 +482,21 @@ def teacher_students(request):
     
     return render(request, "spanishapp/teacher_students.html", {'students_data': students_data})
 
-
+def contact(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        send_mail(
+            f'Contact Form - {subject}',
+            f'From: {name} ({email})\n\nMessage:\n{message}',
+            email,
+            ['admin@spanish1to1.com'],
+            fail_silently=False,
+        )
+        return render(request, 'spanishapp/contact.html', {'success': True})
+    return render(request, 'spanishapp/contact.html')
 
 
 

@@ -28,7 +28,7 @@
     <p><strong>Email:</strong> {{ profile.email }}</p>
     <p><strong>Country of residence:</strong> {{ profile.country_of_residence.name }}</p>
     <p><strong>Country of birth:</strong> {{ profile.country_of_birth.name }}</p>
-    <p><strong>Date of birth:</strong> {{ profile.date_of_birth }}</p>
+    <p><strong>Date of birth:</strong> {{ profile.date_of_birth }} ({{ profile.get_age }} years old)</p>
     {% if not is_teacher %}
         <p><strong>Language level:</strong> {{ profile.level }}</p>
     {% else %}

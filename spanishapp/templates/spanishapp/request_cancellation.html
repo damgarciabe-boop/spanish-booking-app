@@ -1,0 +1,34 @@
+{% extends "spanishapp/base.html" %}
+
+{% block title %}Request Cancellation{% endblock %}
+
+{% block content %}
+<h2>Request Cancellation</h2>
+
+<div class="confirm-card" style="max-width: 600px;">
+    <p><strong>Course:</strong> {{ booking.course.title }}</p>
+    <p><strong>Date:</strong> {{ booking.time_slot.start_date_time|date:"F j, Y" }} — {{ booking.time_slot.start_date_time|time:"g:i a" }} to {{ booking.time_slot.end_date_time|time:"g:i a" }}</p>
+    <p><strong>Teacher:</strong> {{ booking.time_slot.teacher.first_name }} {{ booking.time_slot.teacher.last_name }}</p>
+
+    <hr style="margin: 16px 0;">
+    <p style="color:#888; font-size:0.9rem;">Please select a reason for cancellation. Your teacher will be notified.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <label>Reason for cancellation</label>
+            <select name="reason">
+                <option value="Illness">Illness</option>
+                <option value="Schedule conflict">Schedule conflict</option>
+                <option value="Going on holiday">Going on holiday</option>
+                <option value="Other">Other</option>
+            </select>
+        </p>
+        <div class="button-group" style="margin-top: 16px;">
+            <button type="submit">Confirm cancellation request</button>
+            <a href="{% url 'my_bookings' %}"><button type="button">Go back</button></a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

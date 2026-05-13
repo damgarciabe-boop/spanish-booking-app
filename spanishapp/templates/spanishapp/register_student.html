@@ -5,6 +5,15 @@
 {% block content %}
 <h2>Student Registration</h2>
 
+{% if success %}
+<div class="confirm-card" style="max-width: 600px; margin-top: 24px; text-align:center;">
+    <p style="font-size:1.1rem;"><strong>You have been registered successfully!</strong></p>
+    <p class="min-level" style="margin-top: 8px;">Welcome to Spanish Lessons One to One. You can now log in and start booking your classes.</p>
+    <div class="button-group" style="margin-top: 24px; justify-content:center;">
+        <a href="{% url 'login' %}"><button>Go to login</button></a>
+    </div>
+</div>
+{% else %}
 <div class="confirm-card">
     {% if form.errors %}
         <p style="color:red;">Please correct the errors below.</p>
@@ -12,18 +21,7 @@
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {%for field in form%}
-            <p>
-                {{field.label_tag}}
-                {{field}}
-                {%if field.errors%}
-                    {%for error in field.errors%}
-                        <span style= "color:red;">{{error}}</span>
-                    {%endfor%}
-                {%endif%}
-            </p>
-        {%endfor%}
-
+        {{ form.as_p }}
         <div class="button-group">
             <button type="submit">Register</button>
         </div>
@@ -31,5 +29,6 @@
 
     <p style="margin-top: 16px;">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
 </div>
+{% endif %}
 
 {% endblock %}

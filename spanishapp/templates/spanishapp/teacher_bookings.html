@@ -21,6 +21,9 @@
         <p>Course: {{ booking.course.title }}</p>
         <p>Date: {{ booking.time_slot.start_date_time|date:"F j, Y" }} — {{ booking.time_slot.start_date_time|time:"g:i a" }} to {{ booking.time_slot.end_date_time|time:"g:i a" }}</p>
         <p style="color:#ff0000;">*This student wants to cancel this class</p>
+        {% if booking.cancellation_reason %}
+            <p style="color:#888; font-size:0.85rem;">Reason: {{ booking.cancellation_reason }}</p>
+        {% endif %}
         <div class="button-group" style="margin-top: 12px;">
             <a href="{% url 'cancel_booking' booking.id %}" style="background-color:#f58e8e; color:black; padding:8px 16px; border-radius:6px;">Cancel</a>
         </div>

@@ -28,6 +28,7 @@
             <div>
                 <p style="margin:0;"><strong>{{ item.student.first_name }} {{ item.student.last_name }}</strong></p>
                 <p class="min-level" style="margin:0;">{{ item.student.level }}</p>
+                <p class="min-level" style="margin:0;">{{ item.student.get_age }} years old</p>
             </div>
         </div>
         <p class="min-level">Completed classes: <strong>{{ item.completed }}</strong></p>
