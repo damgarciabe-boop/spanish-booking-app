@@ -1,0 +1,47 @@
+{% extends "spanishapp/base.html" %}
+
+{% block title %}My Students{% endblock %}
+
+{% block banner %}
+<div class="teacher-banner">Teacher Dashboard</div>
+{% endblock %}
+
+{% block content %}
+<h2>My Students</h2>
+
+<div class="button-group" style="margin-bottom: 32px;">
+    <a href="{% url 'teacher_dashboard' %}"><button>Go back</button></a>
+</div>
+
+{% if students_data %}
+<div class="card-grid">
+    {% for item in students_data %}
+    <div class="course-card" style="text-align:left;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+            {% if item.student.photo %}
+                <img src="{{ item.student.photo.url }}" class="teacher-photo" style="width:50px; height:50px;">
+            {% else %}
+                <div style="width:50px; height:50px; border-radius:50%; background-color:#E8A0A0; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:1.2rem;">
+                    {{ item.student.first_name|first }}
+                </div>
+            {% endif %}
+            <div>
+                <p style="margin:0;"><strong>{{ item.student.first_name }} {{ item.student.last_name }}</strong></p>
+                <p class="min-level" style="margin:0;">{{ item.student.level }}</p>
+            </div>
+        </div>
+        <p class="min-level">Completed classes: <strong>{{ item.completed }}</strong></p>
+        <p class="min-level">Cancelled classes: <strong>{{ item.cancelled }}</strong></p>
+        {% if item.next_booking %}
+            <p class="min-level">Next class: <strong>{{ item.next_booking.time_slot.start_date_time|date:"F j, Y" }} {{ item.next_booking.time_slot.start_date_time|time:"g:i a" }}</strong></p>
+        {% else %}
+            <p class="min-level">No upcoming classes</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p>You have no students yet.</p>
+{% endif %}
+
+{% endblock %}

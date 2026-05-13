@@ -323,7 +323,43 @@ def teacher_bookings(request):
     })
 
 
-
+@login_required
+def teacher_students(request):
+    if not TeacherProfile.objects.filter(id=request.user.id).exists():
+        return redirect('student_dashboard')
+    teacher = TeacherProfile.objects.get(id=request.user.id)
+    
+    student_ids = Booking.objects.filter(
+        time_slot__teacher=teacher
+    ).values_list('student', flat=True).distinct()
+    
+    students_data = []
+    for student_id in student_ids:
+        student = StudentProfile.objects.get(id=student_id)
+        completed_count = Booking.objects.filter(
+            time_slot__teacher=teacher,
+            student=student,
+            status__title="Completed"
+        ).count()
+        cancelled_count = Booking.objects.filter(
+            time_slot__teacher=teacher,
+            student=student,
+            status__title="Cancelled"
+        ).count()
+        next_booking = Booking.objects.filter(
+            time_slot__teacher=teacher,
+            student=student,
+            status__title__in=["Confirmed", "Pending"],
+            time_slot__start_date_time__gte=timezone.now()
+        ).order_by('time_slot__start_date_time').first()
+        students_data.append({
+            'student': student,
+            'completed': completed_count,
+            'cancelled': cancelled_count,
+            'next_booking': next_booking,
+        })
+    
+    return render(request, "spanishapp/teacher_students.html", {'students_data': students_data})
 
 
 
