@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordResetForm
 from .forms import StudentRegistrationForm, TimeSlotForm
-from .models import LanguageLevel, CourseType, StudentProfile, TeacherProfile, Status, TimeSlot, Booking
+from .models import LanguageLevel, CourseType, StudentProfile, TeacherProfile, Status, TimeSlot, Booking, ClassPackage
 from django.utils import timezone
 from datetime import timedelta 
 from django.core.mail import send_mail
@@ -26,6 +26,13 @@ def register_student(request):
         if form.is_valid():
             student = form.save(commit=False)
             student.set_password(form.cleaned_data['password'])
+            reference_code = form.cleaned_data['reference_code']
+            try:
+                package = ClassPackage.objects.get(code=reference_code)
+                student.package = package
+            except ClassPackage.DoesNotExist:
+                form.add_error('reference_code', 'Invalid reference code')
+                return render(request, 'spanishapp/register_student.html', {'form': form})
             student.save()
             return render(request, 'spanishapp/register_student.html', {'success': True})
     else:
@@ -57,10 +64,17 @@ def student_dashboard(request):
     if TeacherProfile.objects.filter(id=request.user.id).exists():
         return redirect('teacher_dashboard')
     try:
-        StudentProfile.objects.get(id=request.user.id)
+       student = StudentProfile.objects.get(id=request.user.id)
     except StudentProfile.DoesNotExist:
         return redirect('/admin/')
-    return render(request, 'spanishapp/student_dashboard.html')
+    completed = Booking.objects.filter(
+        student=student,
+        status__title="Completed"
+    ).count()
+    return render(request, 'spanishapp/student_dashboard.html', {
+        'student': student,
+        'completed': completed
+        })
 
 @login_required
 def teacher_dashboard(request):

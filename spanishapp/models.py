@@ -22,6 +22,14 @@ class CourseType(models.Model):
 
     def __str__(self):
         return self.title
+    
+
+class ClassPackage(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    total_classes = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.code} - {self.total_classes} classes"
 
 
 class StudentProfile(User):
@@ -32,6 +40,12 @@ class StudentProfile(User):
     level = models.ForeignKey(
         LanguageLevel,
         on_delete=models.PROTECT
+    )
+    package = models.ForeignKey(
+        ClassPackage,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
     def get_age(self):
         if self.date_of_birth:

@@ -10,6 +10,12 @@
 <h2>Welcome, {{ request.user.first_name }}!</h2>
 <p class="course-selected">This is your student dashboard.</p>
 
+{% if student.package %}
+    <p class="course-selected">
+        Classes completed: <strong style = "color d88ca0;">{{ completed }}</strong> of <strong style = "color d88ca0;">{{ student.package.total_classes }}</strong>
+    </p>
+{% endif %}
+
 <div class="dashboard-actions">
     <a href="/booking/" class="action-card">
         <h4>Book a class</h4>

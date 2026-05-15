@@ -8,6 +8,7 @@ class StudentRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     confirm_password = forms.CharField(widget=forms.PasswordInput)
     email = forms.EmailField(required=True)
+    reference_code = forms.CharField(required=True)
     date_of_birth = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={'type': 'date'}),

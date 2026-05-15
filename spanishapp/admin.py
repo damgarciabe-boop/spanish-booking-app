@@ -2,11 +2,13 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
     LanguageLevel, CourseType, StudentProfile,
-    TeacherProfile, Status, TimeSlot, Booking
+    TeacherProfile, Status, TimeSlot, Booking,
+    ClassPackage
 )
 
 admin.site.register(LanguageLevel)
 admin.site.register(CourseType)
+admin.site.register(ClassPackage)
 admin.site.register(Status)
 admin.site.register(TimeSlot)
 admin.site.register(Booking)
@@ -14,7 +16,7 @@ admin.site.register(Booking)
 @admin.register(StudentProfile)
 class StudentAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
-        ("Student Info", {"fields": ("photo", "date_of_birth", "country_of_birth", "country_of_residence", "level")}),
+        ("Student Info", {"fields": ("photo", "date_of_birth", "country_of_birth", "country_of_residence", "level", "package")}),
     )
 
 @admin.register(TeacherProfile)
