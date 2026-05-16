@@ -19,7 +19,19 @@
 <div class="confirm-card">
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% for field in form %}
+            <div style="margin-bottom: 16px;">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div style="color: #c0392b; font-size: 0.9rem; margin-top: 4px;">
+                        {% for error in field.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
         <div class="button-group">
             <button type="submit">Save Time Slot</button>
             <a href="{% url 'teacher_availability' %}"><button type="button">Go to My Availability</button></a>

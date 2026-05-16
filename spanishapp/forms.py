@@ -31,7 +31,7 @@ class StudentRegistrationForm(forms.ModelForm):
 class TimeSlotForm(forms.ModelForm):
     class Meta:
         model = TimeSlot
-        fields = ['course','start_date_time', 'end_date_time']
+        fields = ['start_date_time', 'end_date_time']
         widgets = {
             'start_date_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'end_date_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),

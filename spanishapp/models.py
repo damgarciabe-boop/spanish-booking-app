@@ -99,14 +99,12 @@ class TimeSlot(models.Model):
         TeacherProfile,
         on_delete=models.CASCADE
     )
-    course = models.ForeignKey(
-    CourseType,
-    on_delete=models.PROTECT
-    )
 
     def __str__(self):
         return f"{self.teacher} | {self.start_date_time}"
 
+    class Meta:
+        unique_together = ('teacher', 'start_date_time')
 
 class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

@@ -124,7 +124,6 @@ def booking_timeslot(request, course_id, teacher_id):
     teacher = TeacherProfile.objects.get(id=teacher_id)
     time_slots = TimeSlot.objects.filter(
         teacher=teacher,
-        course=course,
         is_available=True,
         start_date_time__gt=timezone.now()
     ).order_by('start_date_time')
@@ -215,15 +214,20 @@ def create_timeslot(request):
     if request.method == "POST":
         form = TimeSlotForm(request.POST)
         if form.is_valid():
+            start = form.cleaned_data['start_date_time']
+            duplicate = TimeSlot.objects.filter(teacher=teacher, start_date_time=start).exists()
+            if duplicate:
+                form.add_error('start_date_time', 'You already have a time slot at this date and time.')
+                return render(request, "spanishapp/create_timeslot.html", {"form": form, "teacher": teacher})
             timeslot = form.save(commit=False)
             timeslot.teacher = teacher
             timeslot.is_available = True
             timeslot.save()
-            return render(request, "spanishapp/create_timeslot.html", {"form": TimeSlotForm(initial={'course': timeslot.course}), "success": True, "teacher": teacher})
+            return render(request, "spanishapp/create_timeslot.html", {"form": TimeSlotForm(), "success": True, "teacher": teacher})
     else:
         form = TimeSlotForm()
-        form.fields['course'].queryset = teacher.courses.all()
-    return render(request, "spanishapp/create_timeslot.html", {"form": form})
+    return render(request, "spanishapp/create_timeslot.html", {"form": form, "teacher": teacher})
+
 
 @login_required
 def delete_timeslot(request, timeslot_id):
