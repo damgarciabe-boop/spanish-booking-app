@@ -7,22 +7,114 @@
 {% endblock %}
 
 {% block content %}
-<h2>Welcome, {{ request.user.first_name }}!</h2>
-<p class="course-selected">This is your teacher dashboard.</p>
+<div style="display: flex; gap: 32px; align-items: flex-start;">
 
-<div class="dashboard-actions">
-    <a href="{% url 'teacher_availability' %}" class="action-card">
-        <h4>My Availability</h4>
-        <p>Manage your available time slots</p>
-    </a>
-    <a href="{% url 'teacher_bookings' %}" class="action-card">
-        <h4>My Bookings</h4>
-        <p>View and manage your student bookings</p>
-    </a>
-    <a href="{% url 'teacher_students' %}" class="action-card">
-        <h4>My Students</h4>
-        <p>View your students and their progress</p>
-    </a>
+    <div style="flex: 1;">
+        <h2>Welcome, {{ request.user.first_name }}!</h2>
+        <p class="course-selected">This is your teacher dashboard.</p>
+
+        <div class="dashboard-actions">
+            <a href="{% url 'teacher_availability' %}" class="action-card">
+                <h4>My Availability</h4>
+                <p>Manage your available time slots</p>
+            </a>
+            <a href="{% url 'teacher_bookings' %}" class="action-card">
+                <h4>My Bookings</h4>
+                <p>View and manage your student bookings</p>
+            </a>
+            <a href="{% url 'teacher_students' %}" class="action-card">
+                <h4>My Students</h4>
+                <p>View your students and their progress</p>
+            </a>
+        </div>
+    </div>
+
+    <div style="
+        width: 260px;
+        background-color: #6B6B6B;
+        border-radius: 2px;
+        padding: 24px 20px 20px 20px;
+        flex-shrink: 0;
+        margin-top: 16px;
+        position: relative;
+        box-shadow: 4px 4px 10px rgba(0,0,0,0.25), 8px 8px 20px rgba(0,0,0,0.15);
+        transform: rotate(-1deg);
+        font-family: 'Georgia', serif;
+    ">
+        <div style="
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 18px;
+            background: #888;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        "></div>
+
+        <h4 style="margin-top: 8px; margin-bottom: 12px; color: #f0f0f0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; font-size: 1rem;">
+            Upcoming Classes
+        </h4>
+
+        {% if upcoming %}
+        <div id="upcoming-slider">
+            {% for booking in upcoming %}
+            <div class="upcoming-slide" style="display: none; margin-bottom: 8px;">
+                <p style="margin: 0; font-size: 0.82rem; color: #bbb;">{{ booking.time_slot.start_date_time|date:"F j, Y" }}</p>
+                <p style="margin: 0; font-size: 0.9rem; color: #f0f0f0;"><strong>{{ booking.time_slot.start_date_time|time:"g:i a" }}</strong> — {{ booking.course.title }}</p>
+                <p style="margin: 0; font-size: 0.8rem; color: #bbb;">{{ booking.student.first_name }} {{ booking.student.last_name }}</p>
+                {% if booking.status.title == "Pending" %}
+                    <p style="margin: 0; font-size: 0.78rem; color: #E8A0A0; font-style: italic;">Pending confirmation</p>
+                {% endif %}
+                {% if not forloop.last %}
+                    <hr style="border: none; border-top: 1px dashed rgba(255,255,255,0.15); margin: 8px 0;">
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px;">
+            <button onclick="changeSlide(-1)" style="background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #f0f0f0; font-size: 1rem;">&#8592;</button>
+            <span id="slide-counter" style="font-size: 0.8rem; color: #bbb;"></span>
+            <button onclick="changeSlide(1)" style="background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #f0f0f0; font-size: 1rem;">&#8594;</button>
+        </div>
+
+        <div style="margin-top: 12px; text-align: center;">
+            <a href="{% url 'teacher_bookings' %}" style="font-size: 0.82rem; color: #E8A0A0; text-decoration: underline;">View all bookings</a>
+        </div>
+
+        {% else %}
+            <p style="font-size: 0.85rem; color: #bbb;">No upcoming classes.</p>
+        {% endif %}
+    </div>
+
 </div>
+
+<script>
+    const slides = document.querySelectorAll('.upcoming-slide');
+    let current = 0;
+    const perPage = 3;
+
+    function showSlides(index) {
+        slides.forEach(s => s.style.display = 'none');
+        const end = Math.min(index + perPage, slides.length);
+        for (let i = index; i < end; i++) {
+            slides[i].style.display = 'block';
+        }
+        const page = Math.floor(index / perPage) + 1;
+        const totalPages = Math.ceil(slides.length / perPage);
+        document.getElementById('slide-counter').textContent = page + ' / ' + totalPages;
+    }
+
+    function changeSlide(direction) {
+        current += direction * perPage;
+        if (current < 0) current = 0;
+        if (current >= slides.length) current = slides.length - perPage;
+        showSlides(current);
+    }
+
+    if (slides.length > 0) showSlides(0);
+</script>
 
 {% endblock %}

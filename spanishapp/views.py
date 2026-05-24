@@ -71,16 +71,30 @@ def student_dashboard(request):
         student=student,
         status__title="Completed"
     ).count()
+    upcoming = Booking.objects.filter(
+        student=student,
+        status__title__in=["Confirmed", "Pending"],
+        time_slot__start_date_time__gt=timezone.now()
+    ).order_by('time_slot__start_date_time')
     return render(request, 'spanishapp/student_dashboard.html', {
         'student': student,
-        'completed': completed
-        })
+        'completed': completed,
+        'upcoming': upcoming,
+    })
 
 @login_required
 def teacher_dashboard(request):
     if not TeacherProfile.objects.filter(id=request.user.id).exists():
         return redirect('student_dashboard')
-    return render(request, "spanishapp/teacher_dashboard.html")
+    teacher = TeacherProfile.objects.get(id=request.user.id)
+    upcoming = Booking.objects.filter(
+        time_slot__teacher=teacher,
+        status__title__in=["Confirmed", "Pending"],
+        time_slot__start_date_time__gt=timezone.now()
+    ).order_by('time_slot__start_date_time')
+    return render(request, "spanishapp/teacher_dashboard.html", {
+        'upcoming': upcoming,
+    })
 
 @login_required
 def booking(request):
@@ -443,6 +457,8 @@ def request_cancellation(request, booking_id):
 
 @login_required
 def my_profile(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
     is_teacher = TeacherProfile.objects.filter(id=request.user.id).exists()
     if is_teacher:
         profile = TeacherProfile.objects.get(id=request.user.id)
@@ -452,6 +468,8 @@ def my_profile(request):
 
 @login_required
 def edit_profile(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
     is_teacher = TeacherProfile.objects.filter(id=request.user.id).exists()
     if is_teacher:
         profile = TeacherProfile.objects.get(id=request.user.id)
