@@ -92,7 +92,15 @@ def booking(request):
         return redirect('/admin/')
     if student.level is None:
         return render(request, 'spanishapp/booking.html', {'no_level': True})
-    
+
+    completed_count = Booking.objects.filter(
+        student=student,
+        status__title="Completed"
+    ).count()
+
+    if student.package and completed_count >= student.package.total_classes:
+        return render(request, 'spanishapp/booking.html', {'no_classes_left': True})
+
     age = student.get_age()
     if age and age < 18:
         courses = CourseType.objects.filter(title__icontains="Children")
@@ -113,9 +121,9 @@ def booking(request):
     
  
 @login_required
-def booking_teachers (request, course_id):
+def booking_teachers(request, course_id):
     course = CourseType.objects.get(id=course_id)
-    teachers= TeacherProfile.objects.filter(courses=course)
+    teachers = TeacherProfile.objects.filter(courses=course)
     return render(request, "spanishapp/booking_teachers.html", {"course": course, "teachers": teachers})
 
 @login_required
@@ -178,8 +186,7 @@ def booking_confirm(request, course_id, teacher_id, timeslot_id):
 @login_required
 def my_bookings(request):
     student = StudentProfile.objects.get(id=request.user.id)
-    
-    
+
     past_bookings = Booking.objects.filter(
         student=student,
         time_slot__end_date_time__lt=timezone.now(),
@@ -190,7 +197,59 @@ def my_bookings(request):
         booking.status = completed_status
         booking.save()
 
-    
+        if student.package:
+            total_classes = student.package.total_classes
+            completed_count = Booking.objects.filter(
+                student=student,
+                status__title="Completed"
+            ).count()
+
+            if completed_count == total_classes:
+                send_mail(
+                    'Your class package is complete',
+                    f'Hola {student.first_name}, you have completed all your classes.',
+                    'noreply@spanish1to1.com',
+                    [student.email],
+                    fail_silently=False,
+                    html_message=f'''
+                    <div style="font-family: Arial, sans-serif; color: #333;">
+                        <h2 style="color: #C47A7A;">You have completed your class package!</h2>
+                        <p>Hola {student.first_name},</p>
+                        <p>You have completed all <strong>{total_classes} classes</strong> in your package. We hope you enjoyed your Spanish learning journey!</p>
+                        <hr>
+                        <p>If you would like to continue learning, please contact us at <a href="mailto:admin@spanish1to1.com">admin@spanish1to1.com</a> to renew your package.</p>
+                        <hr>
+                        <p>Best regards,</p>
+                        <p><strong>Spanish Lessons One to One</strong></p>
+                        <hr>
+                        <p style="font-size: 0.8em; color: #777;">This is an automated message, please do not reply.</p>
+                    </div>
+                    ''',
+                )
+            elif completed_count == total_classes - 1:
+                send_mail(
+                    'You have 1 class left in your package',
+                    f'Hola {student.first_name}, you have 1 class left in your package.',
+                    'noreply@spanish1to1.com',
+                    [student.email],
+                    fail_silently=False,
+                    html_message=f'''
+                    <div style="font-family: Arial, sans-serif; color: #333;">
+                        <h2 style="color: #C47A7A;">Only 1 class left!</h2>
+                        <p>Hola {student.first_name},</p>
+                        <p>You have only <strong>1 class remaining</strong> in your package of {total_classes} classes.</p>
+                        <hr>
+                        <p>We recommend contacting us soon to renew your package so you don't lose your learning momentum!</p>
+                        <p>Contact us at <a href="mailto:admin@spanish1to1.com">admin@spanish1to1.com</a> to renew.</p>
+                        <hr>
+                        <p>Best regards,</p>
+                        <p><strong>Spanish Lessons One to One</strong></p>
+                        <hr>
+                        <p style="font-size: 0.8em; color: #777;">This is an automated message, please do not reply.</p>
+                    </div>
+                    ''',
+                )
+
     Booking.objects.filter(
         student=student,
         status__title="Cancelled"
@@ -254,7 +313,7 @@ def confirm_booking(request, booking_id):
         fail_silently=False,
         html_message=f'''
         <div style="font-family: Arial, sans-serif; color: #333;">
-            <h2 style="color: #3776ab;">Booking Confirmed</h2
+            <h2 style="color: #3776ab;">Booking Confirmed</h2>
             <p>Hola! {booking.student.first_name},</p>
             <p>Your booking for <strong>{booking.course.title}</strong> with <strong>{booking.time_slot.teacher.first_name}</strong> has been confirmed.</p>
             <hr>
@@ -285,7 +344,7 @@ def cancel_booking(request, booking_id):
         fail_silently=False,
         html_message=f'''
         <div style="font-family: Arial, sans-serif; color: #333;">
-            <h2 style="color: #3776ab;">Booking Cancelled</h2
+            <h2 style="color: #3776ab;">Booking Cancelled</h2>
             <p>Hola! {booking.student.first_name},</p>
             <p>Your booking for <strong>{booking.course.title}</strong> with <strong>{booking.time_slot.teacher.first_name}</strong> has been cancelled.</p>
             <hr>
@@ -338,7 +397,6 @@ def request_cancellation(request, booking_id):
             ''',
         )
         return redirect('my_bookings')
-
 
     if booking.time_slot.start_date_time - timezone.now() < timedelta(hours=24):
         return render(request, 'spanishapp/request_cancellation.html', {
@@ -525,8 +583,6 @@ def contact(request):
         )
         return render(request, 'spanishapp/contact.html', {'success': True})
     return render(request, 'spanishapp/contact.html')
-
-
 
 
 

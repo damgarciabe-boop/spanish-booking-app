@@ -4,6 +4,20 @@
 
 {% block content %}
 <h2>Book a class</h2>
+
+{% if no_level %}
+<div style="background-color:#fdecea; border-radius:8px; padding:16px; margin-bottom:24px;">
+    <p><strong>You do not have a language level assigned yet.</strong></p>
+    <p style="font-size:0.9rem;">Please contact us at <a href="mailto:admin@spanish1to1.com">admin@spanish1to1.com</a> so we can assign your level before booking a class.</p>
+</div>
+
+{% elif no_classes_left %}
+<div style="background-color:#fdecea; border-radius:8px; padding:16px; margin-bottom:24px;">
+    <p><strong>You have completed all the classes in your package.</strong></p>
+    <p style="font-size:0.9rem;">To continue learning, please contact us at <a href="mailto:admin@spanish1to1.com">admin@spanish1to1.com</a> to renew your package.</p>
+</div>
+
+{% else %}
 <p class="course-selected">Your language level: <strong>{{ student.level }}</strong></p>
 
 {% if last_teacher %}
@@ -31,6 +45,8 @@
     </div>
 {% endfor %}
 </div>
+
+{% endif %}
 
 <div class="button-group">
     <a href="/student/dashboard/"><button>Go back</button></a>
