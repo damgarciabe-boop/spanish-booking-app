@@ -8,6 +8,7 @@
 
 {% block content %}
 <h2>Create Available Time Slot</h2>
+<p style="font-size:0.9rem; color:#888; margin-top:-8px;">All classes are 1 hour long. The end time will be set automatically once you select a start time.</p>
 
 {% if success %}
 <div style="background-color:#a7f2ce; border-radius:8px; padding:16px; margin-bottom:24px;">
@@ -42,6 +43,10 @@
 <script>
     const startInput = document.getElementById('id_start_date_time');
     const endInput = document.getElementById('id_end_date_time');
+
+    endInput.setAttribute('readonly', true);
+    endInput.style.backgroundColor = '#f0f0f0';
+    endInput.style.cursor = 'not-allowed';
 
     startInput.addEventListener('change', function() {
         if (startInput.value) {
